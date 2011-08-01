@@ -16,17 +16,25 @@
  * * Chrome 14 (minimized or background tab)
  * 
  */
-/*jslint browser: true */
+/*jslint browser: true, plusplus: false */
 /*global window */
 var backseat = {
 	//////////////
 	// SETTINGS //
 	//////////////
 	/** how often would you like to check this? (time in ms) */
-	checkInterval: 1000,
+	checkInterval: 500,
 
 	/** after this time, we'll issue a "background"-event */
-	maxGap: 1100,
+	maxGap: 600,
+
+	/**
+	 * some browsers fire an animationFrame every few seconds, so we'll only 
+	 * switch if we have this many events in a row.
+	 * This will also be useful, in case the computer is under a lot of stress
+	 * and animationFrames are not dealt ot so quickly. 
+	 */
+	eventSmoothing: 2,
 
 	///////////////////
 	// INTERNAL VARS //
@@ -36,6 +44,9 @@ var backseat = {
 
 	/** last timestamp in ms, wehere we saw the interval fire */
 	lastIntervalFire: 0,
+
+	/** counter used for eventSmoothing */
+	smoothingCounter: 0,
 
 	/** were we visible or not? possible states are 'preInit', 'tabVisible', 'tabInvisible' */
 	lastKnownState: 'preInit',
@@ -63,11 +74,15 @@ var backseat = {
 		}
 
 		if (newState !== backseat.lastKnownState) {
-			// TODO firefox fires an animationFrame every few seconds even when in background. We should "smoothen" this behaviour a little.
-			backseat.lastKnownState = newState;
-			e = document.createEvent('Events');
-			e.initEvent(backseat.lastKnownState, true, true);
-			document.body.dispatchEvent(e);
+			if (backseat.smoothingCounter >= backseat.eventSmoothing) {
+				backseat.smoothingCounter = 0;
+				backseat.lastKnownState = newState;
+				e = document.createEvent('Events');
+				e.initEvent(backseat.lastKnownState, true, true);
+				document.body.dispatchEvent(e);
+			} else {
+				backseat.smoothingCounter++;
+			}
 		}
 	},
 
