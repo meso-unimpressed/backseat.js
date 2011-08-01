@@ -1,0 +1,27 @@
+<html>
+<head>
+	<title>not yet inited</title>
+</head>
+<body>
+	<h1>Am i a background-tab?</h1>
+	<p>Demonstrates the functionality of backseat.js.</p>
+	<p>You should now see "DAYTIME" in the Site-Title (probably written somewhere in your tabs). Switch to another tab and wait a short time: It should switch to "nighttime".</p>
+	<div id="tabbed"></div>
+	<script src="../src/backseat.js"></script>
+	<script>
+		var eventsDispatched = 0;
+		document.body.addEventListener('tabVisible', function (e) {
+			// You can do whatever you want to do when your tab becomes visible.
+			// we are just setting the title here, so you can verify it's working!
+			eventsDispatched++;
+			document.title = 'DAYTIME ' + eventsDispatched;
+		}, false);
+		document.body.addEventListener('tabInvisible', function (e) {
+			// You can do whatever you want to do when your tab becomes invisible.
+			// we are just setting the title here, so you can verify it's working!
+			eventsDispatched++;
+			document.title = 'nighttime ' + eventsDispatched;
+		}, false);
+	</script>
+</body>
+</html>
